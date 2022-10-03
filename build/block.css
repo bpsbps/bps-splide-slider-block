@@ -1,16 +1,1 @@
-/*!***************************************************************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[3].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[3].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[3].use[3]!./src/block.scss ***!
-  \***************************************************************************************************************************************************************************************************************************************/
-.slider-edit-block {
-  padding: 20px;
-  border: 1px solid #d6d6d6;
-  background: #f1f1f1;
-}
-.slider-edit-block .slider-edit-block-element {
-  text-align: center;
-  margin: 20px 0;
-  padding: 20px 10px;
-  background: #d6d6d6;
-}
-
-/*# sourceMappingURL=block.css.map*/
+.slider-edit-block{background:#f1f1f1;border:1px solid #d6d6d6;padding:20px}.slider-edit-block .slider-edit-block-element{background:#d6d6d6;margin:20px 0;padding:20px 10px;text-align:center}

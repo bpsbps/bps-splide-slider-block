@@ -3,7 +3,7 @@
 /*
   Plugin Name: BPS Slider Block Using Splide
   Description: Custom block for Splide slider with customizable parameters
-  Version: 1.0
+  Version: 1.1
   Author: BPS
   Text Domain: bps-slider-block
   Domain Path: /languages
@@ -16,22 +16,22 @@ if (!defined('ABSPATH')) {
 class SplideBlock {
   function __construct() {
 
-    $this->sbp_default_image_size_name = 'splide-slider';
-    $this->sbp_default_image_width = '900';
-    $this->sbp_default_image_height = '600';
-    $this->sbp_default_type = 'loop';
-    $this->sbp_default_rewind = '1';
-    $this->sbp_default_height_ratio = '0.6';
-    $this->sbp_default_gap = '20';
-    $this->sbp_default_padding = '20';
-    $this->sbp_default_breakpoint = '';
-    $this->sbp_default_breakpoint_height_ratio = '1';
-    $this->sbp_default_breakpoint_gap = '0';
-    $this->sbp_default_breakpoint_padding = '0';
+    $this->sbp_image_size_name = 'splide-slider';
+    $this->sbp_image_width = '900';
+    $this->sbp_image_height = '600';
+    $this->sbp_type = 'loop';
+    $this->sbp_rewind = '1';
+    $this->sbp_height_ratio = '0.6';
+    $this->sbp_gap = '20';
+    $this->sbp_padding = '20';
+    $this->sbp_breakpoint = '';
+    $this->sbp_breakpoint_height_ratio = '1';
+    $this->sbp_breakpoint_gap = '0';
+    $this->sbp_breakpoint_padding = '0';
 
     $this->splide_slider_type_options = ['slide', 'loop', 'fade'];
 
-    add_image_size($this->sbp_default_image_size_name, get_option('sbp_image_width') ? get_option('sbp_image_width') : $this->sbp_default_image_width, get_option('sbp_image_height') ? get_option('sbp_image_height') : $this->sbp_default_image_height, true);
+    add_image_size($this->sbp_image_size_name, get_option('sbp_image_width') ? get_option('sbp_image_width') : $this->sbp_image_width, get_option('sbp_image_height') ? get_option('sbp_image_height') : $this->sbp_image_height, true);
 
     add_action('init', array($this, 'onInit'));
     add_action('admin_menu', array($this, 'adminPage'));
@@ -50,44 +50,86 @@ class SplideBlock {
     register_block_type('bps-blocks/slider', array(
       'editor_style'      => 'sbp_style',
       'editor_script'     => 'sbp_script',
-      'render_callback'   => array($this, 'render')
+      'render_callback'   => array($this, 'render'),
+      // Attributes are loaded in following order:
+      // - Default values as specified in constructor
+      // - Values changed via Settings page
+      // - Values specified in custom post type block template
+      // - Values set for a specific block via block controls
+      'attributes'        => array(
+        'images'            => array(
+          'type'              => 'array',
+          'default'           => array(
+            array(
+              'id' => '',
+              'front_url' => '',
+              'block_url' => ''
+            )
+          )
+        ),
+        'type'              => array(
+          'type'              => 'string',
+          'default'           => get_option('sbp_type') ? get_option('sbp_type') : $this->sbp_type
+        ),
+        'rewind'            => array(
+          'type'              => 'bool',
+          'default'           => (get_option('sbp_rewind') || get_option('sbp_rewind') === '0') ? get_option('sbp_rewind') : $this->sbp_rewind,
+        ),
+        'height_ratio'      => array(
+          'type'              => 'number',
+          'default'           => get_option('sbp_height_ratio') ? get_option('sbp_height_ratio') : $this->sbp_height_ratio,
+        ),
+        'gap'               => array(
+          'type'              => 'number',
+          'default'           => (get_option('sbp_gap') || get_option('sbp_gap') === '0') ? get_option('sbp_gap') : $this->sbp_gap,
+        ),
+        'padding'           => array(
+          'type'              => 'number',
+          'default'           => (get_option('sbp_padding') || get_option('sbp_padding') === '0') ? get_option('sbp_padding') : $this->sbp_padding,
+        ),
+        'breakpoint'        => array(
+          'type'              => 'number',
+          'default'           => get_option('sbp_breakpoint') ? get_option('sbp_breakpoint') : $this->sbp_breakpoint,
+        ),
+        'breakpoint_height_ratio' => array(
+          'type'              => 'number',
+          'default'           => get_option('sbp_breakpoint_height_ratio') ? get_option('sbp_breakpoint_height_ratio') : $this->sbp_breakpoint_height_ratio,
+        ),
+        'breakpoint_gap'    => array(
+          'type'              => 'number',
+          'default'           => (get_option('sbp_breakpoint_gap') || get_option('sbp_breakpoint_gap') === '0') ? get_option('sbp_breakpoint_gap') : $this->sbp_breakpoint_gap,
+        ),
+        'breakpoint_padding' => array(
+          'type'              => 'number',
+          'default'           => (get_option('sbp_breakpoint_padding') || get_option('sbp_breakpoint_padding') === '0') ? get_option('sbp_breakpoint_padding') : $this->sbp_breakpoint_padding,
+        ),
+      )
     ));
   }
 
-  function render($data) {
+  function render($attributes) {
     if (!is_admin()) {
       wp_enqueue_style('sbp_frontend_style', plugin_dir_url(__FILE__) . 'build/frontend.css');
       wp_enqueue_script('sbp_frontend_script', plugin_dir_url(__FILE__) . 'build/frontend.js', array('wp-element'));
-      $options = array(
-        'type'                    => get_option('sbp_type') ? get_option('sbp_type') : $this->sbp_default_type,
-        'rewind'                  => get_option('sbp_rewind') ? get_option('sbp_rewind') : $this->sbp_default_rewind,
-        'height_ratio'            => get_option('sbp_height_ratio') ? get_option('sbp_height_ratio') : $this->sbp_default_height_ratio,
-        'gap'                     => get_option('sbp_gap') ? get_option('sbp_gap') : $this->sbp_default_gap,
-        'padding'                 => get_option('sbp_padding') ? get_option('sbp_padding') : $this->sbp_default_padding,
-        'breakpoint'              => get_option('sbp_breakpoint') ? get_option('sbp_breakpoint') : $this->sbp_default_breakpoint,
-        'breakpoint_height_ratio' => get_option('sbp_breakpoint_height_ratio') ? get_option('sbp_breakpoint_height_ratio') : $this->sbp_default_breakpoint_height_ratio,
-        'breakpoint_gap'          => get_option('sbp_breakpoint_gap') ? get_option('sbp_breakpoint_gap') : $this->sbp_default_breakpoint_gap,
-        'breakpoint_padding'      => get_option('sbp_breakpoint_padding') ? get_option('sbp_breakpoint_padding') : $this->sbp_default_breakpoint_padding,
-      );
-      wp_localize_script('sbp_frontend_script', 'slider_options', $options);
     }
 
-    if (array_key_exists('images', $data)) {
-      foreach ($data['images'] as $key => $image) {
+    if (array_key_exists('images', $attributes)) {
+      foreach ($attributes['images'] as $key => $image) {
         if (array_key_exists('id', $image)) {
           $image_id = $image['id'];
           if (wp_get_attachment_metadata($image_id)) {
             $image_data = wp_get_attachment_metadata($image_id);
-            if (array_key_exists($this->sbp_default_image_size_name, $image_data['sizes'])) {
-              $data['images'][$key]['front_url'] = wp_get_upload_dir()['url'] . '/' . $image_data['sizes'][$this->sbp_default_image_size_name]['file'];
+            if (array_key_exists($this->sbp_image_size_name, $image_data['sizes'])) {
+              $attributes['images'][$key]['front_url'] = wp_get_upload_dir()['url'] . '/' . $image_data['sizes'][$this->sbp_image_size_name]['file'];
             }
           }
         }
       }
     }
+
     ob_start() ?>
 <div class="splide_element">
-  <pre style="display: none;"><?php echo wp_json_encode($data) ?></pre>
+  <pre style="display: none;"><?php echo wp_json_encode($attributes) ?></pre>
 </div>
 <?php return ob_get_clean();
   }
@@ -102,40 +144,40 @@ class SplideBlock {
     add_settings_section('sbp_main_section', null, null, 'splide-settings');
 
     add_settings_field('sbp_image_width', esc_html__('Image width in px', 'bps-slider-block'), array($this, 'imageWidthHTML'), 'splide-settings', 'sbp_main_section');
-    register_setting('splide_block_plugin', 'sbp_image_width', array('sanitize_callback' => array($this, 'sanitizeImageWidth'), 'default' => $this->sbp_default_image_width));
+    register_setting('splide_block_plugin', 'sbp_image_width', array('sanitize_callback' => array($this, 'sanitizeImageWidth'), 'default' => $this->sbp_image_width));
 
     add_settings_field('sbp_image_height', esc_html__('Image height in px', 'bps-slider-block'), array($this, 'imageHeightHTML'), 'splide-settings', 'sbp_main_section');
-    register_setting('splide_block_plugin', 'sbp_image_height', array('sanitize_callback' => array($this, 'sanitizeImageHeight'), 'default' => $this->sbp_default_image_height));
+    register_setting('splide_block_plugin', 'sbp_image_height', array('sanitize_callback' => array($this, 'sanitizeImageHeight'), 'default' => $this->sbp_image_height));
 
     add_settings_field('sbp_type', esc_html__('Type', 'bps-slider-block'), array($this, 'typeHTML'), 'splide-settings', 'sbp_main_section');
-    register_setting('splide_block_plugin', 'sbp_type', array('sanitize_callback' => array($this, 'sanitizeType'), 'default' => $this->sbp_default_type));
+    register_setting('splide_block_plugin', 'sbp_type', array('sanitize_callback' => array($this, 'sanitizeType'), 'default' => $this->sbp_type));
 
     add_settings_field('sbp_rewind', esc_html__('Rewind', 'bps-slider-block'), array($this, 'rewindHTML'), 'splide-settings', 'sbp_main_section');
-    register_setting('splide_block_plugin', 'sbp_rewind', array('sanitize_callback' => array($this, 'sanitizeRewind'), 'default' => $this->sbp_default_rewind));
+    register_setting('splide_block_plugin', 'sbp_rewind', array('sanitize_callback' => array($this, 'sanitizeRewind'), 'default' => $this->sbp_rewind));
 
     add_settings_field('sbp_height_ratio', esc_html__('Height ratio', 'bps-slider-block'), array($this, 'heightRatioHTML'), 'splide-settings', 'sbp_main_section');
-    register_setting('splide_block_plugin', 'sbp_height_ratio', array('sanitize_callback' => array($this, 'sanitizeHeightRatio'), 'default' => $this->sbp_default_height_ratio));
+    register_setting('splide_block_plugin', 'sbp_height_ratio', array('sanitize_callback' => array($this, 'sanitizeHeightRatio'), 'default' => $this->sbp_height_ratio));
 
     add_settings_field('sbp_gap', esc_html__('Gap in px', 'bps-slider-block'), array($this, 'gapHTML'), 'splide-settings', 'sbp_main_section');
-    register_setting('splide_block_plugin', 'sbp_gap', array('sanitize_callback' => array($this, 'sanitizeGap'), 'default' => $this->sbp_default_gap));
+    register_setting('splide_block_plugin', 'sbp_gap', array('sanitize_callback' => array($this, 'sanitizeGap'), 'default' => $this->sbp_gap));
 
     add_settings_field('sbp_padding', esc_html__('Padding in %', 'bps-slider-block'), array($this, 'paddingHTML'), 'splide-settings', 'sbp_main_section');
-    register_setting('splide_block_plugin', 'sbp_padding', array('sanitize_callback' => array($this, 'sanitizePadding'), 'default' => $this->sbp_default_padding));
+    register_setting('splide_block_plugin', 'sbp_padding', array('sanitize_callback' => array($this, 'sanitizePadding'), 'default' => $this->sbp_padding));
 
     // Optional breakpoint settings
     add_settings_section('sbp_breakpoint_section', esc_html__('Optional breakpoint settings', 'bps-slider-block'), null, 'splide-settings');
 
     add_settings_field('sbp_breakpoint', esc_html__('Breakpoint in px', 'bps-slider-block'), array($this, 'breakpointHTML'), 'splide-settings', 'sbp_breakpoint_section');
-    register_setting('splide_block_plugin', 'sbp_breakpoint', array('sanitize_callback' => array($this, 'sanitizeBreakpoint'), 'default' => $this->sbp_default_breakpoint));
+    register_setting('splide_block_plugin', 'sbp_breakpoint', array('sanitize_callback' => array($this, 'sanitizeBreakpoint'), 'default' => $this->sbp_breakpoint));
 
     add_settings_field('sbp_breakpoint_height_ratio', esc_html__('Height ratio', 'bps-slider-block'), array($this, 'breakpointHeightRatioHTML'), 'splide-settings', 'sbp_breakpoint_section');
-    register_setting('splide_block_plugin', 'sbp_breakpoint_height_ratio', array('sanitize_callback' => array($this, 'sanitizeBreakpointHeightRatio'), 'default' => $this->sbp_default_breakpoint_height_ratio));
+    register_setting('splide_block_plugin', 'sbp_breakpoint_height_ratio', array('sanitize_callback' => array($this, 'sanitizeBreakpointHeightRatio'), 'default' => $this->sbp_breakpoint_height_ratio));
 
     add_settings_field('sbp_breakpoint_gap', esc_html__('Gap in px', 'bps-slider-block'), array($this, 'breakpointGapHTML'), 'splide-settings', 'sbp_breakpoint_section');
-    register_setting('splide_block_plugin', 'sbp_breakpoint_gap', array('sanitize_callback' => array($this, 'sanitizeBreakpointGap'), 'default' => $this->sbp_default_breakpoint_gap));
+    register_setting('splide_block_plugin', 'sbp_breakpoint_gap', array('sanitize_callback' => array($this, 'sanitizeBreakpointGap'), 'default' => $this->sbp_breakpoint_gap));
 
     add_settings_field('sbp_breakpoint_padding', esc_html__('Padding in %', 'bps-slider-block'), array($this, 'breakpointPaddingHTML'), 'splide-settings', 'sbp_breakpoint_section');
-    register_setting('splide_block_plugin', 'sbp_breakpoint_padding', array('sanitize_callback' => array($this, 'sanitizeBreakpointPadding'), 'default' => $this->sbp_default_breakpoint_padding));
+    register_setting('splide_block_plugin', 'sbp_breakpoint_padding', array('sanitize_callback' => array($this, 'sanitizeBreakpointPadding'), 'default' => $this->sbp_breakpoint_padding));
   }
 
   // Main settings functions
@@ -205,7 +247,7 @@ class SplideBlock {
   }
 
   function sanitizeRewind($input) {
-    if ($input != 1) {
+    if ($input != '1') {
       $input = '0';
     }
     return sanitize_text_field($input);
@@ -257,7 +299,7 @@ class SplideBlock {
 <?php }
 
   function sanitizeBreakpoint($input) {
-    if ((is_numeric($input) && $input >= 100 && $input <= 1500) || empty($input)) {
+    if ((is_numeric($input) && $input >= 100 && $input <= 1500) || $input == "") {
       return sanitize_text_field($input);
     } else {
       add_settings_error('sbp_breakpoint', 'sbp_breakpoint_error', esc_html__('Breakpoint value must be a number between 100 and 1500 or leave the field empty if you don\'t want a breakpoint', 'bps-slider-block'));
@@ -296,7 +338,7 @@ class SplideBlock {
 
   function adminPageHTML() { ?>
 <div class="wrap">
-  <h1>Splide Slider Block <?php echo esc_html__('Settings', 'bps-slider-block') ?></h1>
+  <h1>Splide Slider Block <?php esc_html_e('Settings', 'bps-slider-block') ?></h1>
   <form action="options.php" method="post">
     <?php
         settings_fields('splide_block_plugin');
