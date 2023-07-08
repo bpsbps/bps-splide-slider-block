@@ -2,8 +2,8 @@
 Contributors: bpsbps
 Tags: slider, splide, gutenberg, blocks
 Requires at least: 5.7
-Tested up to: 6.2
-Stable tag: 1.1
+Tested up to: 6.2.2
+Stable tag: 1.1.1
 License: GPLv3+
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -32,3 +32,6 @@ BPS Splide Slider Block uses the [Splide](https://splidejs.com/) library.
 = 1.1 =
 * Customizable options in Block settings menu
 * Accessible attributes for Custom Post Type Block Template
+
+= 1.1.1 =
+* Fix Block settings menu sliders not working by converting props to Number

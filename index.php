@@ -3,7 +3,7 @@
 /*
   Plugin Name: BPS Slider Block Using Splide
   Description: Custom block for Splide slider with customizable parameters
-  Version: 1.1
+  Version: 1.1.1
   Author: BPS
   Text Domain: bps-slider-block
   Domain Path: /languages
@@ -53,9 +53,10 @@ class SplideBlock {
       'render_callback'   => array($this, 'render'),
       // Attributes are loaded in following order:
       // - Default values as specified in constructor
-      // - Values changed via Settings page
+      // - Values changed via settings page
       // - Values specified in custom post type block template
       // - Values set for a specific block via block controls
+      // Last 2 are applied on save of post but reset by changes on settings page
       'attributes'        => array(
         'images'            => array(
           'type'              => 'array',
@@ -128,10 +129,10 @@ class SplideBlock {
     }
 
     ob_start() ?>
-<div class="splide_element">
-  <pre style="display: none;"><?php echo wp_json_encode($attributes) ?></pre>
-</div>
-<?php return ob_get_clean();
+    <div class="splide_element">
+      <pre style="display: none;"><?php echo wp_json_encode($attributes) ?></pre>
+    </div>
+  <?php return ob_get_clean();
   }
 
   function adminPage() {
@@ -183,36 +184,36 @@ class SplideBlock {
   // Main settings functions
 
   function imageWidthHTML() { ?>
-<input type="text" name="sbp_image_width" value="<?php echo esc_attr(get_option('sbp_image_width')) ?>">
-<?php }
+    <input type="text" name="sbp_image_width" value="<?php echo esc_attr(get_option('sbp_image_width')) ?>">
+  <?php }
 
   function imageHeightHTML() { ?>
-<input type="text" name="sbp_image_height" value="<?php echo esc_attr(get_option('sbp_image_height')) ?>">
-<?php }
+    <input type="text" name="sbp_image_height" value="<?php echo esc_attr(get_option('sbp_image_height')) ?>">
+  <?php }
 
   function typeHTML() { ?>
-<select name="sbp_type">
-  <?php foreach ($this->splide_slider_type_options as $option) { ?>
-  <option value="<?php echo $option ?>" <?php selected(get_option('sbp_type'), $option) ?>><?php echo $option ?></option>
-  <?php } ?>
-</select>
-<?php }
+    <select name="sbp_type">
+      <?php foreach ($this->splide_slider_type_options as $option) { ?>
+        <option value="<?php echo $option ?>" <?php selected(get_option('sbp_type'), $option) ?>><?php echo $option ?></option>
+      <?php } ?>
+    </select>
+  <?php }
 
   function rewindHTML() { ?>
-<input type="checkbox" name="sbp_rewind" value="1" <?php checked(get_option('sbp_rewind', '1')) ?>>
-<?php }
+    <input type="checkbox" name="sbp_rewind" value="1" <?php checked(get_option('sbp_rewind', '1')) ?>>
+  <?php }
 
   function heightRatioHTML() { ?>
-<input type="text" name="sbp_height_ratio" value="<?php echo esc_attr(get_option('sbp_height_ratio')) ?>">
-<?php }
+    <input type="text" name="sbp_height_ratio" value="<?php echo esc_attr(get_option('sbp_height_ratio')) ?>">
+  <?php }
 
   function gapHTML() { ?>
-<input type="text" name="sbp_gap" value="<?php echo esc_attr(get_option('sbp_gap')) ?>">
-<?php }
+    <input type="text" name="sbp_gap" value="<?php echo esc_attr(get_option('sbp_gap')) ?>">
+  <?php }
 
   function paddingHTML() { ?>
-<input type="text" name="sbp_padding" value="<?php echo esc_attr(get_option('sbp_padding')) ?>">
-<?php }
+    <input type="text" name="sbp_padding" value="<?php echo esc_attr(get_option('sbp_padding')) ?>">
+  <?php }
 
   function sanitizeImageWidth($input) {
     if (is_numeric($input) && $input >= 100 && $input <= 1000) {
@@ -283,20 +284,20 @@ class SplideBlock {
   // Optional breakpoint settings functions
 
   function breakpointHTML() { ?>
-<input type="text" name="sbp_breakpoint" value="<?php echo esc_attr(get_option('sbp_breakpoint')) ?>">
-<?php }
+    <input type="text" name="sbp_breakpoint" value="<?php echo esc_attr(get_option('sbp_breakpoint')) ?>">
+  <?php }
 
   function breakpointHeightRatioHTML() { ?>
-<input type="text" name="sbp_breakpoint_height_ratio" value="<?php echo esc_attr(get_option('sbp_breakpoint_height_ratio')) ?>">
-<?php }
+    <input type="text" name="sbp_breakpoint_height_ratio" value="<?php echo esc_attr(get_option('sbp_breakpoint_height_ratio')) ?>">
+  <?php }
 
   function breakpointGapHTML() { ?>
-<input type="text" name="sbp_breakpoint_gap" value="<?php echo esc_attr(get_option('sbp_breakpoint_gap')) ?>">
-<?php }
+    <input type="text" name="sbp_breakpoint_gap" value="<?php echo esc_attr(get_option('sbp_breakpoint_gap')) ?>">
+  <?php }
 
   function breakpointPaddingHTML() { ?>
-<input type="text" name="sbp_breakpoint_padding" value="<?php echo esc_attr(get_option('sbp_breakpoint_padding')) ?>">
-<?php }
+    <input type="text" name="sbp_breakpoint_padding" value="<?php echo esc_attr(get_option('sbp_breakpoint_padding')) ?>">
+  <?php }
 
   function sanitizeBreakpoint($input) {
     if ((is_numeric($input) && $input >= 100 && $input <= 1500) || $input == "") {
@@ -337,16 +338,16 @@ class SplideBlock {
   // Other functions
 
   function adminPageHTML() { ?>
-<div class="wrap">
-  <h1>Splide Slider Block <?php esc_html_e('Settings', 'bps-slider-block') ?></h1>
-  <form action="options.php" method="post">
-    <?php
+    <div class="wrap">
+      <h1>Splide Slider Block <?php esc_html_e('Settings', 'bps-slider-block') ?></h1>
+      <form action="options.php" method="post">
+        <?php
         settings_fields('splide_block_plugin');
         do_settings_sections('splide-settings');
         submit_button();
         ?>
-  </form>
-</div>
+      </form>
+    </div>
 <?php }
 }
 
