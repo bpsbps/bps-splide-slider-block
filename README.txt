@@ -3,7 +3,7 @@ Contributors: bpsbps
 Tags: slider, splide, gutenberg, blocks
 Requires at least: 5.7
 Tested up to: 6.7.0
-Stable tag: 1.1.3
+Stable tag: 1.1.4
 License: GPLv3+
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -42,3 +42,7 @@ BPS Splide Slider Block uses the [Splide](https://splidejs.com/) library.
 
 = 1.1.3 =
 * Splide keyboard shortcuts enabled when focused
+
+= 1.1.4 =
+* Remove Splide keyboard shortcuts enabled when focused property as it didn't work
+* Initialize one last forgotten class property explicitly before construct

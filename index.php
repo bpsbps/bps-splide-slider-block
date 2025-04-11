@@ -3,7 +3,7 @@
 /*
   Plugin Name: BPS Slider Block Using Splide
   Description: Custom block for Splide slider with customizable parameters
-  Version: 1.1.3
+  Version: 1.1.4
   Author: BPS
   Text Domain: bps-slider-block
   Domain Path: /languages
@@ -27,6 +27,8 @@ class SplideBlock {
   public $sbp_breakpoint_height_ratio;
   public $sbp_breakpoint_gap;
   public $sbp_breakpoint_padding;
+
+  public $splide_slider_type_options;
 
   public function __construct() {
 
