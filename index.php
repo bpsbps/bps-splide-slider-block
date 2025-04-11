@@ -3,7 +3,7 @@
 /*
   Plugin Name: BPS Slider Block Using Splide
   Description: Custom block for Splide slider with customizable parameters
-  Version: 1.1.1
+  Version: 1.1.2
   Author: BPS
   Text Domain: bps-slider-block
   Domain Path: /languages
@@ -14,8 +14,23 @@ if (!defined('ABSPATH')) {
 }
 
 class SplideBlock {
-  function __construct() {
+  // Class properties
+  public $sbp_image_size_name;
+  public $sbp_image_width;
+  public $sbp_image_height;
+  public $sbp_type;
+  public $sbp_rewind;
+  public $sbp_height_ratio;
+  public $sbp_gap;
+  public $sbp_padding;
+  public $sbp_breakpoint;
+  public $sbp_breakpoint_height_ratio;
+  public $sbp_breakpoint_gap;
+  public $sbp_breakpoint_padding;
 
+  public function __construct() {
+
+    // Default values for properties
     $this->sbp_image_size_name = 'splide-slider';
     $this->sbp_image_width = '900';
     $this->sbp_image_height = '600';
@@ -38,7 +53,7 @@ class SplideBlock {
     add_action('admin_init', array($this, 'settings'));
   }
 
-  function onInit() {
+  public function onInit() {
 
     load_plugin_textdomain('bps-slider-block', false, dirname(plugin_basename(__FILE__)) . '/languages');
 
@@ -108,7 +123,7 @@ class SplideBlock {
     ));
   }
 
-  function render($attributes) {
+  public function render($attributes) {
     if (!is_admin()) {
       wp_enqueue_style('sbp_frontend_style', plugin_dir_url(__FILE__) . 'build/frontend.css');
       wp_enqueue_script('sbp_frontend_script', plugin_dir_url(__FILE__) . 'build/frontend.js', array('wp-element'));
@@ -135,11 +150,11 @@ class SplideBlock {
   <?php return ob_get_clean();
   }
 
-  function adminPage() {
+  public function adminPage() {
     add_options_page('Splide Slider Block ' . esc_html__('Settings', 'bps-slider-block'), 'Splide Block', 'manage_options', 'splide-settings', array($this, 'adminPageHTML'));
   }
 
-  function settings() {
+  public function settings() {
 
     // Main settings
     add_settings_section('sbp_main_section', null, null, 'splide-settings');
@@ -183,15 +198,15 @@ class SplideBlock {
 
   // Main settings functions
 
-  function imageWidthHTML() { ?>
+  public function imageWidthHTML() { ?>
     <input type="text" name="sbp_image_width" value="<?php echo esc_attr(get_option('sbp_image_width')) ?>">
   <?php }
 
-  function imageHeightHTML() { ?>
+  public function imageHeightHTML() { ?>
     <input type="text" name="sbp_image_height" value="<?php echo esc_attr(get_option('sbp_image_height')) ?>">
   <?php }
 
-  function typeHTML() { ?>
+  public function typeHTML() { ?>
     <select name="sbp_type">
       <?php foreach ($this->splide_slider_type_options as $option) { ?>
         <option value="<?php echo $option ?>" <?php selected(get_option('sbp_type'), $option) ?>><?php echo $option ?></option>
@@ -199,24 +214,24 @@ class SplideBlock {
     </select>
   <?php }
 
-  function rewindHTML() { ?>
+  public function rewindHTML() { ?>
     <input type="checkbox" name="sbp_rewind" value="1" <?php checked(get_option('sbp_rewind', '1')) ?>>
   <?php }
 
-  function heightRatioHTML() { ?>
+  public function heightRatioHTML() { ?>
     <input type="text" name="sbp_height_ratio" value="<?php echo esc_attr(get_option('sbp_height_ratio')) ?>">
   <?php }
 
-  function gapHTML() { ?>
+  public function gapHTML() { ?>
     <input type="text" name="sbp_gap" value="<?php echo esc_attr(get_option('sbp_gap')) ?>">
   <?php }
 
-  function paddingHTML() { ?>
+  public function paddingHTML() { ?>
     <input type="text" name="sbp_padding" value="<?php echo esc_attr(get_option('sbp_padding')) ?>">
   <?php }
 
-  function sanitizeImageWidth($input) {
-    if (is_numeric($input) && $input >= 100 && $input <= 1000) {
+  public function sanitizeImageWidth($input) {
+    if (is_numeric($input) && $input >= 100 && $input <= 2000) {
       if ($input != get_option('sbp_image_width')) {
         add_settings_error('sbp_image_width', 'sbp_image_width_warning', esc_html__('Don\'t forget to regenerate thumbnails to apply the width change to existing images', 'bps-slider-block'), 'warning');
       }
@@ -227,8 +242,8 @@ class SplideBlock {
     }
   }
 
-  function sanitizeImageHeight($input) {
-    if (is_numeric($input) && $input >= 100 && $input <= 1000) {
+  public function sanitizeImageHeight($input) {
+    if (is_numeric($input) && $input >= 100 && $input <= 2000) {
       if ($input != get_option('sbp_image_height')) {
         add_settings_error('sbp_image_height', 'sbp_image_height_warning', esc_html__('Don\'t forget to regenerate thumbnails to apply the height change to existing images', 'bps-slider-block'), 'warning');
       }
@@ -239,7 +254,7 @@ class SplideBlock {
     }
   }
 
-  function sanitizeType($input) {
+  public function sanitizeType($input) {
     if (!in_array($input, $this->splide_slider_type_options)) {
       add_settings_error('sbp_type', 'sbp_type_error', esc_html__('Invalid type value', 'bps-slider-block'));
       return get_option('sbp_type');
@@ -247,14 +262,14 @@ class SplideBlock {
     return sanitize_text_field($input);
   }
 
-  function sanitizeRewind($input) {
+  public function sanitizeRewind($input) {
     if ($input != '1') {
       $input = '0';
     }
     return sanitize_text_field($input);
   }
 
-  function sanitizeHeightRatio($input) {
+  public function sanitizeHeightRatio($input) {
     if (is_numeric($input) && $input >= 0 && $input <= 1) {
       return sanitize_text_field($input);
     } else {
@@ -263,7 +278,7 @@ class SplideBlock {
     }
   }
 
-  function sanitizeGap($input) {
+  public function sanitizeGap($input) {
     if (is_numeric($input) && $input >= 0 && $input <= 100) {
       return sanitize_text_field($input);
     } else {
@@ -272,7 +287,7 @@ class SplideBlock {
     }
   }
 
-  function sanitizePadding($input) {
+  public function sanitizePadding($input) {
     if (is_numeric($input) && $input >= 0 && $input <= 30) {
       return sanitize_text_field($input);
     } else {
@@ -283,23 +298,23 @@ class SplideBlock {
 
   // Optional breakpoint settings functions
 
-  function breakpointHTML() { ?>
+  public function breakpointHTML() { ?>
     <input type="text" name="sbp_breakpoint" value="<?php echo esc_attr(get_option('sbp_breakpoint')) ?>">
   <?php }
 
-  function breakpointHeightRatioHTML() { ?>
+  public function breakpointHeightRatioHTML() { ?>
     <input type="text" name="sbp_breakpoint_height_ratio" value="<?php echo esc_attr(get_option('sbp_breakpoint_height_ratio')) ?>">
   <?php }
 
-  function breakpointGapHTML() { ?>
+  public function breakpointGapHTML() { ?>
     <input type="text" name="sbp_breakpoint_gap" value="<?php echo esc_attr(get_option('sbp_breakpoint_gap')) ?>">
   <?php }
 
-  function breakpointPaddingHTML() { ?>
+  public function breakpointPaddingHTML() { ?>
     <input type="text" name="sbp_breakpoint_padding" value="<?php echo esc_attr(get_option('sbp_breakpoint_padding')) ?>">
   <?php }
 
-  function sanitizeBreakpoint($input) {
+  public function sanitizeBreakpoint($input) {
     if ((is_numeric($input) && $input >= 100 && $input <= 1500) || $input == "") {
       return sanitize_text_field($input);
     } else {
@@ -308,7 +323,7 @@ class SplideBlock {
     }
   }
 
-  function sanitizeBreakpointHeightRatio($input) {
+  public function sanitizeBreakpointHeightRatio($input) {
     if (is_numeric($input) && $input >= 0 && $input <= 1) {
       return sanitize_text_field($input);
     } else {
@@ -317,7 +332,7 @@ class SplideBlock {
     }
   }
 
-  function sanitizeBreakpointGap($input) {
+  public function sanitizeBreakpointGap($input) {
     if (is_numeric($input) && $input >= 0 && $input <= 100) {
       return sanitize_text_field($input);
     } else {
@@ -326,7 +341,7 @@ class SplideBlock {
     }
   }
 
-  function sanitizeBreakpointPadding($input) {
+  public function sanitizeBreakpointPadding($input) {
     if (is_numeric($input) && $input >= 0 && $input <= 30) {
       return sanitize_text_field($input);
     } else {
@@ -337,7 +352,7 @@ class SplideBlock {
 
   // Other functions
 
-  function adminPageHTML() { ?>
+  public function adminPageHTML() { ?>
     <div class="wrap">
       <h1>Splide Slider Block <?php esc_html_e('Settings', 'bps-slider-block') ?></h1>
       <form action="options.php" method="post">
