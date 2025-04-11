@@ -3,7 +3,7 @@
 /*
   Plugin Name: BPS Slider Block Using Splide
   Description: Custom block for Splide slider with customizable parameters
-  Version: 1.1.2
+  Version: 1.1.3
   Author: BPS
   Text Domain: bps-slider-block
   Domain Path: /languages

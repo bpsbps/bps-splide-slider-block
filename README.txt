@@ -3,7 +3,7 @@ Contributors: bpsbps
 Tags: slider, splide, gutenberg, blocks
 Requires at least: 5.7
 Tested up to: 6.7.0
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 License: GPLv3+
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -39,3 +39,6 @@ BPS Splide Slider Block uses the [Splide](https://splidejs.com/) library.
 = 1.1.2 =
 * Image max allowed width and height from 1000px to 2000px
 * Initialize class properties explicitly before construct (PHP 8.2 deprecation warning)
+
+= 1.1.3 =
+* Splide keyboard shortcuts enabled when focused
